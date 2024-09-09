@@ -1,74 +1,73 @@
-#ifndef TENSOR_H
-#define TENSOR_H
+#ifndef TENSOR_HPP
+#define TENSOR_HPP
 
-#include<vector>
+#include <vector>
+#include <numeric>
+#include <type_traits>
+#include <iostream>
 
-
+// Tensor class template for arithmetic types only
+template <typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
 class Tensor {
-
 private:
-    std::vector<float> data;
+    std::vector<T> data;
     std::vector<size_t> shape;
-    size_t total_size;
-
-    // required for index based access of the flattened data
-    size_t compute_offset(const std::vector<size_t> &indices) const {
-        size_t offset = 0;
-        size_t stride = 1;
-        for (int i = shape.size() - 1; i >= 0; --i){
-            offset+= indices[i] * stride;
-            stride *= shape[i]
-        }
-        return offset;
-    }
+    size_t total_size = 0;
 
 public:
-    Tensor(const std::vector<size_t> shape) : shape(shape) {
-        total_size = std::accumulate(shape.begin(), shape.end(), 1,
-        std::multiplies<size_t>());
-        data.resize(total_size);
+    Tensor(const std::vector<size_t>& shape) : shape(shape) {
+        total_size = std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<size_t>());
+        data.resize(total_size);  // Allocate memory for tensor data
     }
 
-    float& operator()(const std::vector<size_t>& indices) {
-        size_t offset = compute_offset(indices);
+    Tensor(std::initializer_list<size_t> shape) : shape(shape) {
+        total_size = std::accumulate(shape.begin(), shape.end(), 1, std::multiplies<size_t>());
+        data.resize(total_size);  // Allocate memory for tensor data
+    }
+
+    // Overloaded operator() to access tensor elements by indices
+    T& operator()(const std::vector<size_t>& indices) {
+        size_t offset = computeOffset(indices);
         return data[offset];
     }
 
-    const float& operator()(const std::vector<size_t>& indices) const {
-        size_t offset = compute_offset(indices);
+    // Constant version of the operator()
+    const T& operator()(const std::vector<size_t>& indices) const {
+        size_t offset = computeOffset(indices);
         return data[offset];
     }
 
-    const std::vector<size_t>& getShape() const {
+    std::vector<size_t> getShape() const {
         return shape;
     }
 
-    size_t size() const {
-        return total_size;
-    }
-
-    Tensor operator+(const Tensor& other) const {
-        assert(shape == other.shape);
-        Tensor result_Tensor(shape);
-        for (size_t i = 0; i < total_size; i++) {
-            result_Tensor.data[i] = data[i] + other.data[i];
+    //flat representation (for debugging)
+    void print() const {
+        for (const auto& val : data) {
+            std::cout << val << " ";
         }
-        return result_Tensor;
+        std::cout << std::endl;
     }
 
-    Tensor operator-(const Tensor& other) const {
-        assert(shape == other.shape);
-        Tensor result_Tensor(shape);
-        for (size_t i = 0; i < total_size; i++){
-            result_Tensor[i] = data[i] - other.data[i];
+    // Fill tensor with a specific value
+    void fill(T value) {
+        std::fill(data.begin(), data.end(), value);
+    }
+
+private:
+    // Compute the offset in the flat vector for the given indices
+    size_t computeOffset(const std::vector<size_t>& indices) const {
+        if (indices.size() != shape.size()) {
+            throw std::invalid_argument("Number of indices must match tensor dimensions.");
         }
-        return result_Tensor;
+        size_t offset = 0;
+        size_t stride = 1;
+        for (int i = shape.size() - 1; i >= 0; --i) {
+            offset += indices[i] * stride;
+            stride *= shape[i];
+        }
+        return offset;
     }
+};
 
-    //not implemented
-    Tensor operator*(const Tensor& other) const {
-        Tensor result_Tensor(shape);
-        return result_Tensor
-    }
-
-}
+#endif // TENSOR_HPP
