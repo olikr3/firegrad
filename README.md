@@ -1,4 +1,3 @@
-a leightweight deep learning framework written in C++
+another leightweight deep learning framework.
 
-firegrad provides tensors for arithmetic types and implements automatic differentiation.
-I mostly use it as a sort of playground and to gain a better (sort of under-the-hood) understanding of deep learning.
+It serves mostly educational purposes (to get a better, sort of under-the hood type, understanding of deep learning) and as a playground for implementing interesting algs.
