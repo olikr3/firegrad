@@ -9,10 +9,10 @@ class Tensor:
         self.grad = 0
         #required for autograd:
         self._backward = lambda: None
-        self._prev = set(children)
-        self._ops = ops
+        self._prev = set(_children)
+        self._ops = _ops
 
-    def __add__(self, other, alpha=1):
+    def __add__(self, other: 'Tensor', alpha=1) -> 'Tensor':
         """
         returns a new tensor: result = self + alpha*other
         """
@@ -22,22 +22,22 @@ class Tensor:
         
         return result
     
-    def __sub__(self, other, alpha=1):
+    def __sub__(self, other: 'Tensor', alpha=1) -> 'Tensor':
         """
         returns a new tensor: result = self - alpha*other
         """
-        assert isinstance(other, tensor)
+        assert isinstance(other, Tensor)
         assert self.data.shape == other.data.shape
         return Tensor(self.data + (-1 * alpha * other.data))
 
 
-    def __mul__(self, other):
+    def __mul__(self, other: 'Tensor') -> 'Tensor':
         assert isinstance(other, Tensor)
         result = Tensor(self.data * other.data)
         
         return result
 
-    def __neg__(self, other):
+    def __neg__(self, other: 'Tensor') -> 'Tensor':
         result = Tensor(-1 * self.data)
         return result
 
