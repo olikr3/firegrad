@@ -1,3 +1,4 @@
+import numpy as np
 
 class Tensor:
     """ Represents a wrapper around a np.ndarray """
@@ -16,6 +17,7 @@ class Tensor:
         returns a new tensor: result = self + alpha*other
         """
         assert isinstance(other, Tensor)
+        assert self.data.shape == other.data.shape
         result = Tensor(self.data + (alpha*other.data))
         
         return result
@@ -25,7 +27,8 @@ class Tensor:
         returns a new tensor: result = self - alpha*other
         """
         assert isinstance(other, tensor)
-        return Tensor(self.data + (-1 * alpha * other.data)
+        assert self.data.shape == other.data.shape
+        return Tensor(self.data + (-1 * alpha * other.data))
 
 
     def __mul__(self, other):
